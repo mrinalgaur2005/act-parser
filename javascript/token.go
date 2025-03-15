@@ -2,98 +2,233 @@ package javascript
 
 import "fmt"
 
-// Define token types using iota
 type TokenType int
 
 const (
-	TOKEN_ID TokenType = iota
-	TOKEN_EQUALS
-	TOKEN_LPAREN
-	TOKEN_RPAREN
-	TOKEN_LBRACE
-	TOKEN_RBRACE
-	TOKEN_LBRACKET
-	TOKEN_RBRACKET
-	TOKEN_COLON
-	TOKEN_COMMA
-	TOKEN_LT
-	TOKEN_GT
-	TOKEN_ARROW_RIGHT
-	TOKEN_INT
-	TOKEN_STRING
-	TOKEN_STATEMENT
-	TOKEN_SEMI
-	TOKEN_PLUS
-	TOKEN_MINUS
-	TOKEN_DIV
-	TOKEN_MUL
-	TOKEN_EOF
+	EOF TokenType = iota
+	NUMBER
+	STRING
+	IDENTIFIER
+
+	OPEN_BRACK
+	CLOSED_BRACK
+	OPEN_CURLY
+	CLOSE_CURLY
+	OPEN_PAREN
+	CLOSE_PAREN
+
+	ASSIGNMENT
+	EQUALS
+	STRICT_EQUALS
+	NOT
+	NOT_EQUALS
+	STRICT_NOT_EQUALS
+
+	LESS
+	LESS_EQUALS
+	GREATER
+	GREATER_EQUALS
+
+	OR
+	AND
+	BIT_OR
+	BIT_AND
+	BIT_XOR
+	BIT_NOT
+
+	PLUS
+	DASH
+	SLASH
+	STAR
+	PERCENT
+	EXPONENT
+	PLUS_PLUS
+	MINUS_MINUS
+	PLUS_EQUALS
+	MINUS_EQUALS
+	MUL_EQUALS
+	DIV_EQUALS
+	MOD_EQUALS
+	EXPONENT_EQUALS
+
+	NULLISH_COALESCING
+	OPTIONAL_CHAINING
+
+	DOT
+	DOT_DOT
+	DOT_DOT_DOT
+	SEMICOLON
+	COLON
+	QUESTION
+	COMMA
+	ARROW
+
+	LET
+	CONST
+	VAR
+	CLASS
+	NEW
+	IMPORT
+	FROM
+	EXPORT
+	FN
+	RETURN
+	IF
+	ELSE
+	SWITCH
+	CASE
+	DEFAULT
+	BREAK
+	CONTINUE
+	FOR
+	WHILE
+	DO
+	TRY
+	CATCH
+	FINALLY
+	THROW
+	ASYNC
+	AWAIT
+	SUPER
+	THIS
+	EXTENDS
+	STATIC
+	DELETE
+	YIELD
+	DEBUGGER
+	TYPEOF
+	IN
+	INSTANCEOF
+	NULL
+	UNDEFINED
+	TRUE
+	FALSE
+
+	BACKTICK
 )
 
-// Token structure
 type Token struct {
 	Type  TokenType
 	Value string
 }
 
-// Constructor for Token
-func NewToken(tokenType TokenType, value string) *Token {
-	return &Token{Type: tokenType, Value: value}
+func NewToken(tokenType TokenType, value string) Token {
+	return Token{Type: tokenType, Value: value}
 }
 
-// Convert token type to string
 func TokenTypeToStr(tokenType TokenType) string {
 	switch tokenType {
-	case TOKEN_ID:
-		return "TOKEN_ID"
-	case TOKEN_EQUALS:
-		return "TOKEN_EQUALS"
-	case TOKEN_LPAREN:
-		return "TOKEN_LPAREN"
-	case TOKEN_RPAREN:
-		return "TOKEN_RPAREN"
-	case TOKEN_LBRACE:
-		return "TOKEN_LBRACE"
-	case TOKEN_RBRACE:
-		return "TOKEN_RBRACE"
-	case TOKEN_LBRACKET:
-		return "TOKEN_LBRACKET"
-	case TOKEN_RBRACKET:
-		return "TOKEN_RBRACKET"
-	case TOKEN_COLON:
-		return "TOKEN_COLON"
-	case TOKEN_COMMA:
-		return "TOKEN_COMMA"
-	case TOKEN_LT:
-		return "TOKEN_LT"
-	case TOKEN_GT:
-		return "TOKEN_GT"
-	case TOKEN_ARROW_RIGHT:
-		return "TOKEN_ARROW_RIGHT"
-	case TOKEN_INT:
-		return "TOKEN_INT"
-	case TOKEN_STRING:
-		return "TOKEN_STRING"
-	case TOKEN_STATEMENT:
-		return "TOKEN_STATEMENT"
-	case TOKEN_SEMI:
-		return "TOKEN_SEMI"
-	case TOKEN_PLUS:
-		return "TOKEN_PLUS"
-	case TOKEN_MINUS:
-		return "TOKEN_MINUS"
-	case TOKEN_DIV:
-		return "TOKEN_DIV"
-	case TOKEN_MUL:
-		return "TOKEN_MUL"
-	case TOKEN_EOF:
-		return "TOKEN_EOF"
+	case NUMBER:
+		return "NUMBER"
+	case STRING:
+		return "STRING"
+	case IDENTIFIER:
+		return "IDENTIFIER"
+	case OPEN_BRACK:
+		return "OPEN_BRACK"
+	case CLOSED_BRACK:
+		return "CLOSED_BRACK"
+	case OPEN_CURLY:
+		return "OPEN_CURLY"
+	case CLOSE_CURLY:
+		return "CLOSE_CURLY"
+	case OPEN_PAREN:
+		return "OPEN_PAREN"
+	case CLOSE_PAREN:
+		return "CLOSE_PAREN"
+	case ASSIGNMENT:
+		return "ASSIGNMENT"
+	case EQUALS:
+		return "EQUALS"
+	case STRICT_EQUALS:
+		return "STRICT_EQUALS"
+	case NOT:
+		return "NOT"
+	case NOT_EQUALS:
+		return "NOT_EQUALS"
+	case STRICT_NOT_EQUALS:
+		return "STRICT_NOT_EQUALS"
+	case LESS:
+		return "LESS"
+	case LESS_EQUALS:
+		return "LESS_EQUALS"
+	case GREATER:
+		return "GREATER"
+	case GREATER_EQUALS:
+		return "GREATER_EQUALS"
+	case OR:
+		return "OR"
+	case AND:
+		return "AND"
+	case BIT_OR:
+		return "BIT_OR"
+	case BIT_AND:
+		return "BIT_AND"
+	case BIT_XOR:
+		return "BIT_XOR"
+	case BIT_NOT:
+		return "BIT_NOT"
+	case PLUS:
+		return "PLUS"
+	case DASH:
+		return "DASH"
+	case SLASH:
+		return "SLASH"
+	case STAR:
+		return "STAR"
+	case PERCENT:
+		return "PERCENT"
+	case EXPONENT:
+		return "EXPONENT"
+	case PLUS_PLUS:
+		return "PLUS_PLUS"
+	case MINUS_MINUS:
+		return "MINUS_MINUS"
+	case PLUS_EQUALS:
+		return "PLUS_EQUALS"
+	case MINUS_EQUALS:
+		return "MINUS_EQUALS"
+	case MUL_EQUALS:
+		return "MUL_EQUALS"
+	case DIV_EQUALS:
+		return "DIV_EQUALS"
+	case MOD_EQUALS:
+		return "MOD_EQUALS"
+	case EXPONENT_EQUALS:
+		return "EXPONENT_EQUALS"
+	case NULLISH_COALESCING:
+		return "NULLISH_COALESCING"
+	case OPTIONAL_CHAINING:
+		return "OPTIONAL_CHAINING"
+	case DOT:
+		return "DOT"
+	case DOT_DOT:
+		return "DOT_DOT"
+	case DOT_DOT_DOT:
+		return "DOT_DOT_DOT"
+	case SEMICOLON:
+		return "SEMICOLON"
+	case COLON:
+		return "COLON"
+	case QUESTION:
+		return "QUESTION"
+	case COMMA:
+		return "COMMA"
+	case ARROW:
+		return "ARROW"
+	case BACKTICK:
+		return "BACKTICK"
+	case EOF:
+		return "EOF"
 	default:
 		return "UNKNOWN"
 	}
 }
 
-// Convert token to string representation
-func (t Token) String() string {
-	return fmt.Sprintf("<type=`%s`, int_type=`%d`, value=`%s`>", TokenTypeToStr(t.Type), t.Type, t.Value)
+func (token Token) Debug() {
+	if token.Type == IDENTIFIER || token.Type == NUMBER || token.Type == STRING {
+		fmt.Printf("%s (%s)\n", TokenTypeToStr(token.Type), token.Value)
+	} else {
+		fmt.Printf("%s ()\n", TokenTypeToStr(token.Type))
+	}
 }

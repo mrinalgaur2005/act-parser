@@ -1,179 +1,151 @@
 package javascript
 
-// Lexer structure
-type Lexer struct {
-	Source string // Source code
-	Size   int    // Size of source
-	Char   byte   // Current character
-	Index  int    // Current position
+import (
+	"fmt"
+	"regexp"
+)
+
+type regexHandler func(lex *lexer, regex *regexp.Regexp)
+type regexPattern struct {
+	regex   *regexp.Regexp
+	handler regexHandler
+}
+type lexer struct {
+	patterns []regexPattern
+	Tokens   []Token
+	source   string
+	pos      int
 }
 
-// Constructor for Lexer
-func NewLexer(src string) *Lexer {
-	l := &Lexer{
-		Source: src,
-		Size:   len(src),
-		Index:  0,
-	}
-	if l.Size > 0 {
-		l.Char = src[0]
-	}
-	return l
+func (lex *lexer) advanceN(n int) {
+	lex.pos += n
 }
 
-// Advance the lexer
-func (l *Lexer) Advance() {
-	l.Index++
-	if l.Index < l.Size {
-		l.Char = l.Source[l.Index]
-	} else {
-		l.Char = 0 // Null terminator (EOF)
-	}
+func (lex *lexer) push(token Token) {
+	lex.Tokens = append(lex.Tokens, token)
 }
 
-// Peek ahead in the source code
-func (l *Lexer) Peek(offset int) byte {
-	pos := l.Index + offset
-	if pos >= l.Size {
-		return 0 // Return EOF if out of bounds
-	}
-	return l.Source[pos]
+func (lex *lexer) at() byte {
+	return lex.source[lex.pos]
 }
 
-// Advance lexer and return a given token
-func (l *Lexer) AdvanceWith(token Token) Token {
-	l.Advance()
-	return token
+func (lex *lexer) remainder() string {
+	return lex.source[lex.pos:]
 }
 
-// Advance lexer while keeping current character as token value
-func (l *Lexer) AdvanceCurrent(tokenType TokenType) Token {
-	token := NewToken(tokenType, string(l.Char))
-	l.Advance()
-	return *token
+func (lex *lexer) at_eof() bool {
+	return lex.pos >= len(lex.source)
 }
 
-// Skip whitespace
-func (l *Lexer) SkipWhitespace() {
-	for l.Char == ' ' || l.Char == '\t' || l.Char == '\n' || l.Char == '\r' {
-		l.Advance()
-	}
-}
+func Tokenize(source string) []Token {
+	lex := createLexer(source)
 
-// Skip comments
-func (l *Lexer) SkipComment() {
-	if l.Char == '/' && l.Peek(1) == '/' { // Single-line comment (//)
-		for l.Char != '\n' && l.Char != 0 {
-			l.Advance()
-		}
-	} else if l.Char == '/' && l.Peek(1) == '*' { // Multi-line comment (/* ... */)
-		l.Advance() // Skip '/'
-		l.Advance() // Skip '*'
-		for l.Char != 0 && !(l.Char == '*' && l.Peek(1) == '/') {
-			l.Advance()
-		}
-		l.Advance() // Skip '*'
-		l.Advance() // Skip '/'
-	}
-}
+	for !lex.at_eof() {
+		matched := false
 
-// Parse an identifier (variable names, keywords)
-func (l *Lexer) ParseIdentifier() Token {
-	start := l.Index
-	for (l.Char >= 'a' && l.Char <= 'z') || (l.Char >= 'A' && l.Char <= 'Z') || (l.Char >= '0' && l.Char <= '9') || l.Char == '_' {
-		l.Advance()
-	}
-	return Token{Type: TOKEN_ID, Value: l.Source[start:l.Index]}
-}
+		for _, pattern := range lex.patterns {
+			loc := pattern.regex.FindStringIndex(lex.remainder())
 
-// Parse a number (integer)
-func (l *Lexer) ParseNumber() Token {
-	start := l.Index
-	for l.Char >= '0' && l.Char <= '9' {
-		l.Advance()
-	}
-	return Token{Type: TOKEN_INT, Value: l.Source[start:l.Index]}
-}
-
-// Parse a string
-func (l *Lexer) ParseString() Token {
-	l.Advance() // Skip the opening quote
-	start := l.Index
-	for l.Char != '"' && l.Char != 0 {
-		l.Advance()
-	}
-	value := l.Source[start:l.Index]
-	l.Advance() // Skip the closing quote
-	return Token{Type: TOKEN_STRING, Value: value}
-}
-
-// Get the next token
-func (l *Lexer) NextToken() Token {
-	for l.Char != 0 {
-		if l.Char == ' ' || l.Char == '\n' || l.Char == '\t' || l.Char == '\r' {
-			l.SkipWhitespace()
-			continue
-		}
-
-		if l.Char == '/' && (l.Peek(1) == '/' || l.Peek(1) == '*') {
-			l.SkipComment()
-			continue
-		}
-
-		switch l.Char {
-		case '=':
-			return l.AdvanceCurrent(TOKEN_EQUALS)
-		case '(':
-			return l.AdvanceCurrent(TOKEN_LPAREN)
-		case ')':
-			return l.AdvanceCurrent(TOKEN_RPAREN)
-		case '{':
-			return l.AdvanceCurrent(TOKEN_LBRACE)
-		case '}':
-			return l.AdvanceCurrent(TOKEN_RBRACE)
-		case '[':
-			return l.AdvanceCurrent(TOKEN_LBRACKET)
-		case ']':
-			return l.AdvanceCurrent(TOKEN_RBRACKET)
-		case ':':
-			return l.AdvanceCurrent(TOKEN_COLON)
-		case ',':
-			return l.AdvanceCurrent(TOKEN_COMMA)
-		case '<':
-			return l.AdvanceCurrent(TOKEN_LT)
-		case '>':
-			return l.AdvanceCurrent(TOKEN_GT)
-		case ';':
-			return l.AdvanceCurrent(TOKEN_SEMI)
-		case '+':
-			return l.AdvanceCurrent(TOKEN_PLUS)
-		case '-':
-			if l.Peek(1) == '>' {
-				l.Advance()
-				l.Advance()
-				return Token{Type: TOKEN_ARROW_RIGHT, Value: "->"}
+			if loc != nil && loc[0] == 0 {
+				pattern.handler(lex, pattern.regex)
+				matched = true
+				break
 			}
-			return l.AdvanceCurrent(TOKEN_MINUS)
-		case '/':
-			return l.AdvanceCurrent(TOKEN_DIV)
-		case '*':
-			return l.AdvanceCurrent(TOKEN_MUL)
-		case '"':
-			return l.ParseString()
 		}
-
-		// Identifiers
-		if (l.Char >= 'a' && l.Char <= 'z') || (l.Char >= 'A' && l.Char <= 'Z') || l.Char == '_' {
-			return l.ParseIdentifier()
+		if !matched {
+			panic(fmt.Sprintf("Lexor Error !!! Unrecognized Token near %s \n", lex.remainder()))
 		}
-
-		// Numbers
-		if l.Char >= '0' && l.Char <= '9' {
-			return l.ParseNumber()
-		}
-
-		// Unknown character
-		l.Advance()
 	}
-	return Token{Type: TOKEN_EOF, Value: ""}
+	lex.push(NewToken(EOF, "EOF"))
+	return lex.Tokens
+}
+
+func defaulHandler(Type TokenType, value string) regexHandler {
+	return func(lex *lexer, regex *regexp.Regexp) {
+		lex.advanceN(len(value))
+		lex.push(NewToken(Type, value))
+	}
+}
+
+func createLexer(source string) *lexer {
+	return &lexer{
+		pos:    0,
+		source: source,
+		Tokens: make([]Token, 0),
+		patterns: []regexPattern{
+			{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
+
+			{regexp.MustCompile(`\s+`), skipHandler},
+
+			{regexp.MustCompile(`\[`), defaulHandler(OPEN_BRACK, "[")},
+			{regexp.MustCompile(`\]`), defaulHandler(CLOSED_BRACK, "]")},
+			{regexp.MustCompile(`\{`), defaulHandler(OPEN_CURLY, "{")},
+			{regexp.MustCompile(`\}`), defaulHandler(CLOSE_CURLY, "}")},
+			{regexp.MustCompile(`\(`), defaulHandler(OPEN_PAREN, "(")},
+			{regexp.MustCompile(`\)`), defaulHandler(CLOSE_PAREN, ")")},
+
+			{regexp.MustCompile(`===`), defaulHandler(STRICT_EQUALS, "===")},
+			{regexp.MustCompile(`!==`), defaulHandler(STRICT_NOT_EQUALS, "!==")},
+			{regexp.MustCompile(`==`), defaulHandler(EQUALS, "==")},
+			{regexp.MustCompile(`!=`), defaulHandler(NOT_EQUALS, "!=")},
+
+			{regexp.MustCompile(`\*\*=`), defaulHandler(EXPONENT_EQUALS, "**=")},
+			{regexp.MustCompile(`\+=`), defaulHandler(PLUS_EQUALS, "+=")},
+			{regexp.MustCompile(`-=`), defaulHandler(MINUS_EQUALS, "-=")},
+			{regexp.MustCompile(`\*=`), defaulHandler(MUL_EQUALS, "*=")},
+			{regexp.MustCompile(`/=`), defaulHandler(DIV_EQUALS, "/=")},
+			{regexp.MustCompile(`%=`), defaulHandler(MOD_EQUALS, "%=")},
+
+			{regexp.MustCompile(`\.\.\.`), defaulHandler(DOT_DOT_DOT, "...")},
+			{regexp.MustCompile(`\.\.`), defaulHandler(DOT_DOT, "..")},
+			{regexp.MustCompile(`=>`), defaulHandler(ARROW, "=>")},
+			{regexp.MustCompile("`"), defaulHandler(BACKTICK, "`")},
+
+			{regexp.MustCompile(`<=`), defaulHandler(LESS_EQUALS, "<=")},
+			{regexp.MustCompile(`>=`), defaulHandler(GREATER_EQUALS, ">=")},
+			{regexp.MustCompile(`<`), defaulHandler(LESS, "<")},
+			{regexp.MustCompile(`>`), defaulHandler(GREATER, ">")},
+
+			{regexp.MustCompile(`=`), defaulHandler(ASSIGNMENT, "=")},
+
+			{regexp.MustCompile(`\?`), defaulHandler(QUESTION, "?")},
+
+			{regexp.MustCompile(`\|\|`), defaulHandler(OR, "||")},
+			{regexp.MustCompile(`!`), defaulHandler(NOT, "!")},
+			{regexp.MustCompile(`&&`), defaulHandler(AND, "&&")},
+			{regexp.MustCompile(`\|`), defaulHandler(BIT_OR, "|")},
+			{regexp.MustCompile(`&`), defaulHandler(BIT_AND, "&")},
+			{regexp.MustCompile(`\^`), defaulHandler(BIT_XOR, "^")},
+			{regexp.MustCompile(`~`), defaulHandler(BIT_NOT, "~")},
+
+			{regexp.MustCompile(`\+\+`), defaulHandler(PLUS_PLUS, "++")},
+			{regexp.MustCompile(`--`), defaulHandler(MINUS_MINUS, "--")},
+			{regexp.MustCompile(`\*\*`), defaulHandler(EXPONENT, "**")},
+
+			{regexp.MustCompile(`\+`), defaulHandler(PLUS, "+")},
+			{regexp.MustCompile(`-`), defaulHandler(DASH, "-")},
+			{regexp.MustCompile(`/`), defaulHandler(SLASH, "/")},
+			{regexp.MustCompile(`\*`), defaulHandler(STAR, "*")},
+			{regexp.MustCompile(`%`), defaulHandler(PERCENT, "%")},
+
+			{regexp.MustCompile(`\?\?`), defaulHandler(NULLISH_COALESCING, "??")},
+			{regexp.MustCompile(`\?\.`), defaulHandler(OPTIONAL_CHAINING, "?.")},
+
+			{regexp.MustCompile(`,`), defaulHandler(COMMA, ",")},
+			{regexp.MustCompile(`;`), defaulHandler(SEMICOLON, ";")},
+			{regexp.MustCompile(`:`), defaulHandler(COLON, ":")},
+			{regexp.MustCompile(`\.`), defaulHandler(DOT, ".")},
+		},
+	}
+}
+
+func numberHandler(lex *lexer, regex *regexp.Regexp) {
+	match := regex.FindString(lex.remainder())
+	lex.push(NewToken(NUMBER, match))
+	lex.advanceN(len(match))
+}
+
+func skipHandler(lex *lexer, regex *regexp.Regexp) {
+	match := regex.FindStringIndex(lex.remainder())
+	lex.advanceN(match[1])
 }
