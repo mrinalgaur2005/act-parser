@@ -73,7 +73,16 @@ func createLexer(source string) *lexer {
 		source: source,
 		Tokens: make([]Token, 0),
 		patterns: []regexPattern{
+
+			//need to add template literals here
+
 			{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
+			{regexp.MustCompile(`"(?:[^"\\]|\\.)*"`), stringHandler},
+			{regexp.MustCompile(`'(?:[^'\\]|\\.)*'`), stringHandler},
+
+			{regexp.MustCompile(`\/\/.*`), skipHandler},
+
+			{regexp.MustCompile(`/\*[\s\S]*?\*/`), skipHandler},
 
 			{regexp.MustCompile(`\s+`), skipHandler},
 
@@ -148,4 +157,13 @@ func numberHandler(lex *lexer, regex *regexp.Regexp) {
 func skipHandler(lex *lexer, regex *regexp.Regexp) {
 	match := regex.FindStringIndex(lex.remainder())
 	lex.advanceN(match[1])
+}
+
+func stringHandler(lex *lexer, regex *regexp.Regexp) {
+	match := regex.FindStringIndex(lex.remainder())
+	stringLiteral := lex.remainder()[match[0]:match[1]]
+
+	lex.push(NewToken(STRING, stringLiteral))
+	lex.advanceN(len(stringLiteral))
+
 }
