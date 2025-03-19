@@ -1,4 +1,4 @@
-package javascript
+package lexer
 
 import (
 	"fmt"
@@ -210,6 +210,7 @@ func isIdentifierChar(ch rune) bool {
 }
 
 func templateLiteralHandler(lex *lexer, regex *regexp.Regexp) {
+	//ading nested template literals
 
 	lex.advanceN(1)
 	lex.push(NewToken(TEMPLATE_LITERAL_START, "`"))
