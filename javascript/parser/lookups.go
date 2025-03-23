@@ -57,8 +57,8 @@ func nud(kind lexer.TokenType, bp binding_power, nud_fn nud_handler) {
 	nud_lu[kind] = nud_fn
 }
 
-func stmt(kind lexer.TokenType, bp binding_power, stmt_fn stmt_handler) {
-	bp_lu[kind] = bp
+func stmt(kind lexer.TokenType, stmt_fn stmt_handler) {
+	bp_lu[kind] = default_bp
 	stmt_lu[kind] = stmt_fn
 }
 
@@ -88,4 +88,9 @@ func createTokenLookups() {
 	nud(lexer.NUMBER, primary, parse_primary_expr)
 	nud(lexer.STRING, primary, parse_primary_expr)
 	nud(lexer.IDENTIFIER, primary, parse_primary_expr)
+
+	//Statements
+	stmt(lexer.CONST, parse_var_declare_stmt)
+	stmt(lexer.LET, parse_var_declare_stmt)
+	stmt(lexer.VAR, parse_var_declare_stmt)
 }

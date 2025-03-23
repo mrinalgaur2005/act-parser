@@ -12,7 +12,7 @@ import (
 func main() {
 	fmt.Println("hello")
 
-	bytes, _ := os.ReadFile("javascript/examples/00.js")
+	bytes, _ := os.ReadFile("javascript/examples/04.js")
 	source := string(bytes)
 
 	tokens := lexer.Tokenize(source)
