@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"github.com/mrinalgaur2005/act-parser/javascript/ast"
-	"github.com/mrinalgaur2005/act-parser/javascript/lexer"
+	"github.com/mrinalgaur2005/act-parser/js/ts/ast"
+	"github.com/mrinalgaur2005/act-parser/js/ts/lexer"
 )
 
 type binding_power int
@@ -97,6 +97,7 @@ func createTokenLookups() {
 	nud(lexer.NUMBER, parse_primary_expr)
 	nud(lexer.STRING, parse_primary_expr)
 	nud(lexer.IDENTIFIER, parse_primary_expr)
+	nud(lexer.OPEN_PAREN, parse_grouping_expr)
 	nud(lexer.DASH, parse_prefix_expr)
 
 	//Statements

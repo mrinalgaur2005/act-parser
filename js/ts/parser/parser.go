@@ -3,8 +3,8 @@ package parser
 import (
 	"fmt"
 
-	"github.com/mrinalgaur2005/act-parser/javascript/ast"
-	"github.com/mrinalgaur2005/act-parser/javascript/lexer"
+	"github.com/mrinalgaur2005/act-parser/js/ts/ast"
+	"github.com/mrinalgaur2005/act-parser/js/ts/lexer"
 )
 
 type parser struct {
@@ -14,6 +14,7 @@ type parser struct {
 
 func createParser(tokens []lexer.Token) *parser {
 	createTokenLookups()
+	createTokenTypeLookups()
 	return &parser{
 		tokens: tokens,
 		pos:    0,
@@ -60,6 +61,7 @@ func (p *parser) expectError(expectedKind lexer.TokenType, err any) lexer.Token 
 		if err != nil {
 			err = fmt.Sprintf("Expected %s but received %s insted \n", lexer.TokenTypeToStr(expectedKind), lexer.TokenTypeToStr(kind))
 		}
+		fmt.Printf("inside nill error %s and %s", kind, expectedKind)
 		panic(err)
 	}
 	return p.advance()

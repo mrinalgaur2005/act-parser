@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/mrinalgaur2005/act-parser/javascript/lexer"
+import "github.com/mrinalgaur2005/act-parser/js/ts/lexer"
 
 // Literal Expressions
 type NumberExpr struct {

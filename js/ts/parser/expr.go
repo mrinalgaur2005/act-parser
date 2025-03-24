@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/mrinalgaur2005/act-parser/javascript/ast"
-	"github.com/mrinalgaur2005/act-parser/javascript/lexer"
+	"github.com/mrinalgaur2005/act-parser/js/ts/ast"
+	"github.com/mrinalgaur2005/act-parser/js/ts/lexer"
 )
 
 func parse_expr(p *parser, bp binding_power) ast.Expr {
-	//first parse NUd
+	//first parse Nud
 	tokenKind := p.currentTokenKind()
 	nud_fn, exists := nud_lu[tokenKind]
 
@@ -82,4 +82,11 @@ func parse_prefix_expr(p *parser) ast.Expr {
 		Operator:  operatorToken,
 		RightExpr: rhs,
 	}
+}
+
+func parse_grouping_expr(p *parser) ast.Expr {
+	p.advance()
+	expr := parse_expr(p, default_bp)
+	p.expect(lexer.CLOSE_PAREN)
+	return expr
 }
