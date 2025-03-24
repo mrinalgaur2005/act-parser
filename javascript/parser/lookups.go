@@ -52,8 +52,7 @@ func led(kind lexer.TokenType, bp binding_power, led_fn led_handler) {
 	led_lu[kind] = led_fn
 }
 
-func nud(kind lexer.TokenType, bp binding_power, nud_fn nud_handler) {
-	bp_lu[kind] = bp
+func nud(kind lexer.TokenType, nud_fn nud_handler) {
 	nud_lu[kind] = nud_fn
 }
 
@@ -63,6 +62,16 @@ func stmt(kind lexer.TokenType, stmt_fn stmt_handler) {
 }
 
 func createTokenLookups() {
+
+	//assignment
+	led(lexer.ASSIGNMENT, assignment, parse_assignment_expr)
+	led(lexer.PLUS_EQUALS, assignment, parse_assignment_expr)
+	led(lexer.MINUS_EQUALS, assignment, parse_assignment_expr)
+	led(lexer.MUL_EQUALS, assignment, parse_assignment_expr)
+	led(lexer.DIV_EQUALS, assignment, parse_assignment_expr)
+	led(lexer.MOD_EQUALS, assignment, parse_assignment_expr)
+	led(lexer.EXPONENT_EQUALS, assignment, parse_assignment_expr)
+
 	//Logical
 	led(lexer.AND, logical, parse_binary_expr)
 	led(lexer.OR, logical, parse_binary_expr)
@@ -85,9 +94,10 @@ func createTokenLookups() {
 	led(lexer.PERCENT, multiplicative, parse_binary_expr)
 
 	//Literals + Symbols
-	nud(lexer.NUMBER, primary, parse_primary_expr)
-	nud(lexer.STRING, primary, parse_primary_expr)
-	nud(lexer.IDENTIFIER, primary, parse_primary_expr)
+	nud(lexer.NUMBER, parse_primary_expr)
+	nud(lexer.STRING, parse_primary_expr)
+	nud(lexer.IDENTIFIER, parse_primary_expr)
+	nud(lexer.DASH, parse_prefix_expr)
 
 	//Statements
 	stmt(lexer.CONST, parse_var_declare_stmt)

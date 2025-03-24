@@ -26,7 +26,7 @@ func parse_expr(p *parser, bp binding_power) ast.Expr {
 		if !exists {
 			panic(fmt.Sprintf("NUD Handler expected for %s\n", lexer.TokenTypeToStr(tokenKind)))
 		}
-		left = led_fn(p, left, bp)
+		left = led_fn(p, left, bp_lu[p.currentTokenKind()])
 	}
 	return left
 }
@@ -59,5 +59,27 @@ func parse_binary_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 		Left:     left,
 		Operator: operatorToken,
 		Right:    right,
+	}
+}
+
+func parse_assignment_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
+	operatorToken := p.advance()
+
+	rhs := parse_expr(p, bp)
+
+	return ast.AssignmentExpr{
+		Operator: operatorToken,
+		Value:    rhs,
+		Assigne:  left,
+	}
+}
+
+func parse_prefix_expr(p *parser) ast.Expr {
+	operatorToken := p.advance()
+	rhs := parse_expr(p, default_bp)
+
+	return ast.PrefixExpr{
+		Operator:  operatorToken,
+		RightExpr: rhs,
 	}
 }
