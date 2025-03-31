@@ -54,3 +54,49 @@ func parse_var_declare_stmt(p *parser) ast.Stmt {
 		AssignedVal:  assignedVal,
 	}
 }
+
+func parse_interface_decl_stmt(p *parser) ast.Stmt {
+	p.expect(lexer.INTERFACE)
+	var interfaceName = p.expect(lexer.IDENTIFIER).Value
+	var properties = map[string]ast.InterfaceProp{}
+	var methods = map[string]ast.InterfaceMethod{}
+
+	p.expect(lexer.OPEN_CURLY)
+
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_CURLY {
+		var isStatic bool
+		var propertyName string
+		if p.currentTokenKind() == lexer.STATIC {
+			isStatic = true
+			p.expect(lexer.STATIC)
+		}
+		//properties start here
+		if p.currentTokenKind() == lexer.IDENTIFIER {
+			propertyName = p.expect(lexer.IDENTIFIER).Value
+			p.expectError(lexer.COLON, "Expected to find colon follwing property name inside the interface decln")
+			interfaceType := parse_type(p, default_bp)
+
+			_, exists := properties[propertyName]
+
+			if exists {
+				panic(fmt.Sprintf("Property %s has already been used in the interface decl", propertyName))
+			}
+
+			properties[propertyName] = ast.InterfaceProp{
+				IsStatic: isStatic,
+				Type:     interfaceType,
+			}
+
+			continue
+		}
+		panic("cant handle methods abhi")
+	}
+
+	p.expect(lexer.CLOSE_CURLY)
+
+	return ast.InterfaceDeclStmt{
+		Properties:    properties,
+		Methods:       methods,
+		InterfaceName: interfaceName,
+	}
+}

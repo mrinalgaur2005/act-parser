@@ -8,3 +8,19 @@ let foo2:number;
 
 let foo3:number[];
 
+interface rand{
+    int1:number
+    int2:string
+}
+
+// type rand2={
+//     int2:number
+//     int3:string
+// }
+
+// const foo4: rand2={
+//     int2:3,
+//     int3:"hello"
+// }
+
+

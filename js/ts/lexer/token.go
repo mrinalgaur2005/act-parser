@@ -114,6 +114,8 @@ const (
 	UNDEFINED
 	TRUE
 	FALSE
+	TYPE
+	INTERFACE
 
 	BACKTICK
 )
@@ -159,6 +161,8 @@ var reserved_lu map[string]TokenType = map[string]TokenType{
 	"undefined":  UNDEFINED,
 	"true":       TRUE,
 	"false":      FALSE,
+	"interface":  INTERFACE,
+	"type":       TYPE,
 }
 
 type Token struct {
@@ -368,6 +372,10 @@ func TokenTypeToStr(tokenType TokenType) string {
 		return "TRUE"
 	case FALSE:
 		return "FALSE"
+	case INTERFACE:
+		return "INTERFACE"
+	case TYPE:
+		return "TYPE"
 	case BACKTICK:
 		return "BACKTICK"
 	default:

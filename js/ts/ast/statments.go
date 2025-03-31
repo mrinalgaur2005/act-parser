@@ -20,3 +20,20 @@ type VarDeclStmt struct {
 }
 
 func (n VarDeclStmt) stmt() {}
+
+type InterfaceProp struct {
+	IsStatic bool
+	Type     Type
+}
+
+type InterfaceMethod struct {
+	IsStatic bool
+	//Type Type
+}
+type InterfaceDeclStmt struct {
+	InterfaceName string
+	Properties    map[string]InterfaceProp
+	Methods       map[string]InterfaceMethod
+}
+
+func (n InterfaceDeclStmt) stmt() {}

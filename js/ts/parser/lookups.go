@@ -104,4 +104,7 @@ func createTokenLookups() {
 	stmt(lexer.CONST, parse_var_declare_stmt)
 	stmt(lexer.LET, parse_var_declare_stmt)
 	stmt(lexer.VAR, parse_var_declare_stmt)
+
+	//Interfaces
+	stmt(lexer.INTERFACE, parse_interface_decl_stmt)
 }
