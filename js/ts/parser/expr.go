@@ -43,7 +43,7 @@ func parse_primary_expr(p *parser) ast.Expr {
 			Value: p.advance().Value,
 		}
 	case lexer.IDENTIFIER:
-		return ast.StringExpr{
+		return ast.SymbolExpr{
 			Value: p.advance().Value,
 		}
 	default:
@@ -89,4 +89,30 @@ func parse_grouping_expr(p *parser) ast.Expr {
 	expr := parse_expr(p, default_bp)
 	p.expect(lexer.CLOSE_PAREN)
 	return expr
+}
+
+func parse_interface_init(p *parser) ast.Expr {
+	structName := p.tokens[p.pos-2].Value
+
+	props := map[string]ast.Expr{}
+	p.advance()
+
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_CURLY {
+		propName := p.expect(lexer.IDENTIFIER).Value
+		p.expect(lexer.COLON)
+		expr := parse_expr(p, logical)
+
+		props[propName] = expr
+
+		if p.currentTokenKind() != lexer.CLOSE_CURLY {
+			p.expect(lexer.COMMA)
+		}
+	}
+
+	p.expect(lexer.CLOSE_CURLY)
+
+	return ast.InterfaceInit{
+		InterfaceName: structName,
+		Properties:    props,
+	}
 }

@@ -45,3 +45,10 @@ type AssignmentExpr struct {
 }
 
 func (n AssignmentExpr) expr() {}
+
+type InterfaceInit struct {
+	InterfaceName string
+	Properties    map[string]Expr
+}
+
+func (n InterfaceInit) expr() {}
