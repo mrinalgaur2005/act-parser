@@ -37,3 +37,20 @@ type InterfaceDeclStmt struct {
 }
 
 func (n InterfaceDeclStmt) stmt() {}
+
+type TypeProp struct {
+	IsStatic bool
+	Type     Type
+}
+
+type TypeMethod struct {
+	IsStatic bool
+	//Type Type
+}
+type TypeDeclStmt struct {
+	InterfaceName string
+	Properties    map[string]TypeProp
+	Methods       map[string]TypeMethod
+}
+
+func (n TypeDeclStmt) stmt() {}

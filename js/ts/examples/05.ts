@@ -13,10 +13,10 @@ interface rand{
     int2:string
 }
 
-// type rand2={
-//     int2:number
-//     int3:string
-// }
+type rand2 = {
+    int2:number
+    int3:string
+}
 
 // const foo4: rand2={
 //     int2:3,

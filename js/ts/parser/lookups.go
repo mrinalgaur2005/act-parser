@@ -107,4 +107,7 @@ func createTokenLookups() {
 
 	//Interfaces
 	stmt(lexer.INTERFACE, parse_interface_decl_stmt)
+
+	//Types
+	stmt(lexer.TYPE, parse_type_decl_stmt)
 }
